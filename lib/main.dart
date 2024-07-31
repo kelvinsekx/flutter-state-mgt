@@ -39,24 +39,6 @@ class CarItem {
       required this.subtitle,
       required this.url,
       required this.count});
-
-  static List<CarItem> carItems = [
-    CarItem(
-        title: 'Boxster',
-        count: 1,
-        subtitle: '718 Boxster T Porsche',
-        url: 'https://oreil.ly/Ws4EX'),
-    CarItem(
-        title: 'Clarkers',
-        count: 1,
-        subtitle: '718 Boxster T Porsche',
-        url: 'https://oreil.ly/Ws4EX'),
-    CarItem(
-        title: 'Cayenne',
-        count: 1,
-        subtitle: 'Cayenne S Porsche',
-        url: 'https://oreil.ly/gwvnL'),
-  ];
 }
 
 var globalState;
