@@ -1,32 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-    MaterialApp(
-      title: 'Example App',
-      home: App(),
-      debugShowCheckedModeBanner: false,
+    ChangeNotifierProvider(
+      create: (_) => StateModel(),
+      child: MaterialApp(
+        title: 'Example App',
+        home: App(),
+        debugShowCheckedModeBanner: false,
+      ),
     ),
   );
 }
 
-List<CarItem> carItems = [
-  CarItem(
-      title: 'Boxster',
-      count: 1,
-      subtitle: '718 Boxster T Porsche',
-      url: 'https://oreil.ly/Ws4EX'),
-  CarItem(
-      title: 'Clarkers',
-      count: 1,
-      subtitle: '718 Boxster T Porsche',
-      url: 'https://oreil.ly/Ws4EX'),
-  CarItem(
-      title: 'Cayenne',
-      count: 1,
-      subtitle: 'Cayenne S Porsche',
-      url: 'https://oreil.ly/gwvnL'),
-];
+class StateModel with ChangeNotifier {
+  List<CarItem> carItems = [
+    CarItem(
+        title: 'Boxster',
+        count: 1,
+        subtitle: '718 Boxster T Porsche',
+        url: 'https://oreil.ly/Ws4EX'),
+    CarItem(
+        title: 'Clarkers',
+        count: 1,
+        subtitle: '718 Boxster T Porsche',
+        url: 'https://oreil.ly/Ws4EX'),
+    CarItem(
+        title: 'Cayenne',
+        count: 1,
+        subtitle: 'Cayenne S Porsche',
+        url: 'https://oreil.ly/gwvnL'),
+  ];
+
+  void increment(int carItemId) {
+    var result = carItems.map((e) {
+      if (e.title == carItems[carItemId].title) {
+        e.count++;
+        return e;
+      } else {
+        return e;
+      }
+    });
+    carItems = result.toList();
+    notifyListeners();
+  }
+}
 
 class CarItem {
   final String title;
@@ -41,8 +60,6 @@ class CarItem {
       required this.count});
 }
 
-var globalState;
-
 class App extends StatefulWidget {
   App({super.key});
 
@@ -55,14 +72,11 @@ class App extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    globalState = _AppState();
-    return globalState;
+    return _AppState();
   }
 }
 
 class _AppState extends State<App> {
-  late List<CarItem> items = carItems;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,19 +109,18 @@ class _AppState extends State<App> {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Column(children: [
                         Text(
-                          globalState?.items?[index]?.title ??
-                              carItems[index].title,
+                          context.watch<StateModel>().carItems[index].title,
                           style: App.titleStyles,
                         ),
                         Text(
-                          '${globalState?.items?[index]?.count ?? carItems[index].count}',
+                          '${context.watch<StateModel>().carItems[index].count}',
                           style: App.titleStyles,
                         ),
-                        Text('$globalState')
                       ]),
                     ),
                     CircleAvatar(
-                      backgroundImage: NetworkImage(carItems[index].url),
+                      backgroundImage: NetworkImage(
+                          context.watch<StateModel>().carItems[index].url),
                     )
                   ],
                 ),
@@ -115,7 +128,7 @@ class _AppState extends State<App> {
             ),
           );
         },
-        itemCount: carItems.length,
+        itemCount: context.watch<StateModel>().carItems.length,
       ),
     );
   }
@@ -153,13 +166,13 @@ class _DetailsPage extends State<DetailsPage> {
             child: Column(
               children: [
                 Text(
-                  globalState.items[index].title,
+                  context.watch<StateModel>().carItems[index].title,
                   style: const TextStyle(
                     fontSize: 40,
                   ),
                 ),
                 Text(
-                  '${globalState.items[index].count}',
+                  '${context.watch<StateModel>().carItems[index].count}',
                   style: const TextStyle(
                     fontSize: 40,
                   ),
@@ -171,19 +184,7 @@ class _DetailsPage extends State<DetailsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            var result = carItems.map((e) {
-              if (e.title == carItems[index].title) {
-                e.count++;
-                return e;
-              } else {
-                return e;
-              }
-            });
-            globalState.setState(() {
-              globalState.items = result.toList();
-            });
-          });
+          context.read<StateModel>().increment(index);
         },
         child: const Icon(Icons.add),
       ),
